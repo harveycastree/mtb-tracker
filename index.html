@@ -149,6 +149,7 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            min-height: 0;
         }
 
         .content-area {
@@ -157,6 +158,7 @@
             flex-direction: column;
             position: relative;
             overflow: hidden;
+            min-height: 0;
         }
 
         /* Map and 3D Split */
@@ -165,6 +167,8 @@
             display: flex;
             position: relative;
             min-height: 300px;
+            height: 100%;      /* ensures children using height:100% have a reference */
+            min-height: 0;     /* important in nested flex layouts */
         }
 
         .map-container {
@@ -181,11 +185,13 @@
         /* 3D Viewer Panel */
         .viewer-3d-panel {
             width: 320px;
+            height: 100%;              /* KEY: lock to the view-container height */
             background: var(--bg-secondary);
             border-left: 1px solid var(--border-color);
             display: none;
             flex-direction: column;
             position: relative;
+            overflow: hidden;          /* prevents internal content forcing growth */
         }
 
         /* Draggable resize handle for 3D panel */
@@ -259,10 +265,12 @@
         .viewer-3d-canvas-container {
             flex: 1;
             position: relative;
-            min-height: 200px;
+            min-height: 0;             /* KEY: stops flex child from forcing height growth */
+            height: auto;
         }
 
         #viewer3d {
+            display: block;            /* avoids inline-canvas layout quirks */
             width: 100%;
             height: 100%;
         }
