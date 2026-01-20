@@ -36,7 +36,8 @@
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
-            min-height: 100vh;
+            height: 100vh;        /* lock page to viewport */
+            overflow: hidden;     /* KEY: prevent whole page scrolling */
             display: flex;
             flex-direction: column;
         }
@@ -166,9 +167,7 @@
             flex: 1;
             display: flex;
             position: relative;
-            min-height: 300px;
-            height: 100%;      /* ensures children using height:100% have a reference */
-            min-height: 0;     /* important in nested flex layouts */
+            min-height: 0;   /* KEY for nested flex */
         }
 
         .map-container {
@@ -192,6 +191,10 @@
             background: var(--bg-secondary);
             border-left: 1px solid var(--border-color);
             position: relative;
+            min-height: 0;
+        }
+
+        .viewer-3d-panel > * {
             min-height: 0;
         }
 
@@ -264,10 +267,9 @@
         }
 
         .viewer-3d-canvas-container {
-            flex: 1;
-            min-height: 220px;  
+            flex: 1; 
+            min-height: 0;     /* KEY: allow it to take remaining space */
             position: relative;
-            height: auto;
         }
 
         #viewer3d {
@@ -278,10 +280,11 @@
 
         /* New bottom area: bounded + scrollable */
         .viewer-3d-details {
-            flex: 0 0 auto;
-            max-height: 45%;           /* you can tune this: 35–55% typical */
-            overflow-y: auto;
+            flex: 0 1 auto;                /* can shrink if needed */
+            max-height: clamp(140px, 35%, 320px);  /* bounded, but not huge */
+            overflow-y: auto;              /* scroll only inside sidebar */
             border-top: 1px solid var(--border-color);
+            min-height: 0;
         }
 
         /* Optional: nicer scrollbars */
