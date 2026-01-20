@@ -1841,6 +1841,33 @@
             });
         }
 
+        function loadGLBModelFromUrl(url) {
+            const loader = new THREE.GLTFLoader();
+
+            loader.load(url, (gltf) => {
+                if (bikeModel) scene.remove(bikeModel);
+                bikeModel = gltf.scene;
+
+                // Center and scale the model
+                const box = new THREE.Box3().setFromObject(bikeModel);
+                const center = box.getCenter(new THREE.Vector3());
+                const size = box.getSize(new THREE.Vector3());
+                const maxDim = Math.max(size.x, size.y, size.z);
+                const scale = 2 / maxDim;
+
+                bikeModel.scale.setScalar(scale);
+                bikeModel.position.sub(center.multiplyScalar(scale));
+
+                scene.add(bikeModel);
+                modelLoaded = true;
+                document.getElementById('modelUploadOverlay').classList.add('hidden');
+                showToast('Model loaded successfully');
+            }, undefined, (error) => {
+                console.error('Error loading model:', error);
+                showToast('Error loading model', 'error');
+            });
+        }
+
         function applyRotationToModel(rotPoint) {
             if (!bikeModel || !modelLoaded || !rotPoint) return;
 
@@ -2019,6 +2046,7 @@
             if (viewer3dVisible && !scene) {
                 setTimeout(() => {
                     init3DViewer();
+                    loadGLBModelFromUrl('assets/santa_cruz_v10_downhill_mountain_bicycle.glb');
                     resize3DViewer();
                 }, 100);
             } else if (viewer3dVisible) {
