@@ -185,13 +185,14 @@
         /* 3D Viewer Panel */
         .viewer-3d-panel {
             width: 320px;
-            height: 100%;              /* KEY: lock to the view-container height */
-            background: var(--bg-secondary);
-            border-left: 1px solid var(--border-color);
+            height: 100%;              /* lock to view-container height */
             display: none;
             flex-direction: column;
+            overflow: hidden;          /* prevents children forcing growth */
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
             position: relative;
-            overflow: hidden;          /* prevents internal content forcing growth */
+            min-height: 0;
         }
 
         /* Draggable resize handle for 3D panel */
@@ -264,8 +265,8 @@
 
         .viewer-3d-canvas-container {
             flex: 1;
+            min-height: 220px;  
             position: relative;
-            min-height: 0;             /* KEY: stops flex child from forcing height growth */
             height: auto;
         }
 
@@ -273,6 +274,26 @@
             display: block;            /* avoids inline-canvas layout quirks */
             width: 100%;
             height: 100%;
+        }
+
+        /* New bottom area: bounded + scrollable */
+        .viewer-3d-details {
+            flex: 0 0 auto;
+            max-height: 45%;           /* you can tune this: 35–55% typical */
+            overflow-y: auto;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Optional: nicer scrollbars */
+        .viewer-3d-details::-webkit-scrollbar {
+            width: 6px;
+        }
+        .viewer-3d-details::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        .viewer-3d-details::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
         }
 
         .model-upload-overlay {
@@ -1307,19 +1328,21 @@
                             <input type="file" id="modelFileInput" accept=".glb,.gltf" style="display: none;">
                         </div>
                     </div>
-                    <div class="rotation-stats">
-                        <div class="rotation-stats-grid">
-                            <div class="rotation-stat">
-                                <div class="rotation-stat-label">Roll (Lean)</div>
-                                <div class="rotation-stat-value roll" id="rollValue">0.0°</div>
-                            </div>
-                            <div class="rotation-stat">
-                                <div class="rotation-stat-label">Pitch</div>
-                                <div class="rotation-stat-value pitch" id="pitchValue">0.0°</div>
-                            </div>
-                            <div class="rotation-stat">
-                                <div class="rotation-stat-label">Yaw</div>
-                                <div class="rotation-stat-value yaw" id="yawValue">0.0°</div>
+                    <div class="viewer-3d-details">
+                        <div class="rotation-stats">
+                            <div class="rotation-stats-grid">
+                                <div class="rotation-stat">
+                                    <div class="rotation-stat-label">Roll (Lean)</div>
+                                    <div class="rotation-stat-value roll" id="rollValue">0.0°</div>
+                                </div>
+                                <div class="rotation-stat">
+                                    <div class="rotation-stat-label">Pitch</div>
+                                    <div class="rotation-stat-value pitch" id="pitchValue">0.0°</div>
+                                </div>
+                                <div class="rotation-stat">
+                                    <div class="rotation-stat-label">Yaw</div>
+                                    <div class="rotation-stat-value yaw" id="yawValue">0.0°</div>
+                                </div>
                             </div>
                         </div>
                     </div>
