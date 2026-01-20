@@ -637,6 +637,60 @@
             height: 100% !important;
         }
 
+        /* Fullscreen chart mode */
+        .data-panel.fullscreen {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background: var(--bg-secondary);
+            border: none;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .data-panel.fullscreen .panel-header {
+            flex: 0 0 auto;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .data-panel.fullscreen .panel-content {
+            flex: 1 1 auto;
+            height: auto !important;
+            overflow: hidden;
+        }
+
+        .data-panel.fullscreen .chart-container {
+            height: 100% !important;
+        }
+
+        /* Fullscreen button */
+        .fullscreen-btn {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-btn:hover {
+            border-color: var(--accent-primary);
+        }
+
+        .fullscreen-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-secondary);
+        }
+
+        .data-panel.fullscreen .fullscreen-btn svg {
+            stroke: var(--accent-primary);
+        }
+
+
         /* Upload Overlay */
         .upload-overlay {
             position: absolute;
@@ -1432,6 +1486,12 @@
                                 <option value="m">Meters</option>
                                 <option value="ft">Feet</option>
                             </select>
+                            <button class="fullscreen-btn" title="Fullscreen chart">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M8 3H5a2 2 0 00-2 2v3m17-5h-3a2 2 0 00-2 2v3m0 11v-3a2 2 0 012-2h3m-17 5h3a2 2 0 002-2v-3" />
+                                </svg>
+                            </button>
                             <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -1457,6 +1517,12 @@
                                 <option value="kmh">km/h</option>
                                 <option value="mph">mph</option>
                             </select>
+                            <button class="fullscreen-btn" title="Fullscreen chart">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M8 3H5a2 2 0 00-2 2v3m17-5h-3a2 2 0 00-2 2v3m0 11v-3a2 2 0 012-2h3m-17 5h3a2 2 0 002-2v-3" />
+                                </svg>
+                            </button>
                             <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -1477,6 +1543,12 @@
                             <span>Acceleration (IMU)</span>
                         </div>
                         <div class="panel-controls">
+                            <button class="fullscreen-btn" title="Fullscreen chart">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M8 3H5a2 2 0 00-2 2v3m17-5h-3a2 2 0 00-2 2v3m0 11v-3a2 2 0 012-2h3m-17 5h3a2 2 0 002-2v-3" />
+                                </svg>
+                            </button>
                             <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -1497,6 +1569,12 @@
                             <span>G-Force (Total)</span>
                         </div>
                         <div class="panel-controls">
+                            <button class="fullscreen-btn" title="Fullscreen chart">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M8 3H5a2 2 0 00-2 2v3m17-5h-3a2 2 0 00-2 2v3m0 11v-3a2 2 0 012-2h3m-17 5h3a2 2 0 002-2v-3" />
+                                </svg>
+                            </button>
                             <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -1517,6 +1595,12 @@
                             <span>Gyroscope (Rotation Rate)</span>
                         </div>
                         <div class="panel-controls">
+                            <button class="fullscreen-btn" title="Fullscreen chart">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M8 3H5a2 2 0 00-2 2v3m17-5h-3a2 2 0 00-2 2v3m0 11v-3a2 2 0 012-2h3m-17 5h3a2 2 0 002-2v-3" />
+                                </svg>
+                            </button>
                             <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -1537,6 +1621,12 @@
                             <span>Heading / Course</span>
                         </div>
                         <div class="panel-controls">
+                            <button class="fullscreen-btn" title="Fullscreen chart">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M8 3H5a2 2 0 00-2 2v3m17-5h-3a2 2 0 00-2 2v3m0 11v-3a2 2 0 012-2h3m-17 5h3a2 2 0 002-2v-3" />
+                                </svg>
+                            </button>
                             <svg class="expand-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                             </svg>
@@ -2592,10 +2682,69 @@
 
         document.querySelectorAll('.panel-header').forEach(header => {
             header.addEventListener('click', (e) => {
+                // If clicking unit selector or fullscreen button, do not toggle expand
                 if (e.target.closest('.unit-selector')) return;
+                if (e.target.closest('.fullscreen-btn')) return;
+
                 header.closest('.data-panel').classList.toggle('expanded');
             });
         });
+
+        let fullscreenPanel = null;
+
+        function enterFullscreenPanel(panel) {
+            if (!panel) return;
+
+            // Ensure expanded so the chart is visible
+            panel.classList.add('expanded');
+            panel.classList.add('fullscreen');
+            fullscreenPanel = panel;
+
+            // Resize chart after layout changes
+            setTimeout(() => {
+                const canvas = panel.querySelector('canvas');
+                if (!canvas) return;
+
+                // Find which chart this canvas corresponds to and resize it
+                // Chart.js keeps a global registry of instances (Chart.getChart in v3+)
+                const chart = Chart.getChart(canvas);
+                chart?.resize();
+            }, 50);
+        }
+
+        function exitFullscreenPanel() {
+            if (!fullscreenPanel) return;
+            fullscreenPanel.classList.remove('fullscreen');
+            const panel = fullscreenPanel;
+            fullscreenPanel = null;
+
+            setTimeout(() => {
+                const canvas = panel.querySelector('canvas');
+                if (!canvas) return;
+                const chart = Chart.getChart(canvas);
+                chart?.resize();
+            }, 50);
+        }
+
+        // Click handlers for fullscreen buttons
+        document.querySelectorAll('.fullscreen-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const panel = btn.closest('.data-panel');
+                if (!panel) return;
+
+                if (panel.classList.contains('fullscreen')) exitFullscreenPanel();
+                else enterFullscreenPanel(panel);
+            });
+        });
+
+        // ESC to exit fullscreen
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && fullscreenPanel) {
+                exitFullscreenPanel();
+            }
+        });
+
 
         document.getElementById('elevationUnit')?.addEventListener('change', () => updateElevationChart());
         document.getElementById('speedUnit')?.addEventListener('change', () => updateSpeedChart());
