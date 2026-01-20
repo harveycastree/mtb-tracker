@@ -1,0 +1,10 @@
+# Ignore everything by default
+*
+
+# Allow these files/folders
+!index.html
+!assets/
+!assets/**
+
+# Allow git metadata
+!.gitignore
