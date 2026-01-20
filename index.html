@@ -2677,36 +2677,57 @@
             graphsVisible = !graphsVisible;
             graphsBtn.classList.toggle('active', graphsVisible);
             dataPanels.style.display = graphsVisible ? 'block' : 'none';
-            if (graphsVisible && gpsData.length > 0) setTimeout(() => initCharts(), 100);
+
+            // When opening graphs, we do NOT build charts immediately.
+            // We just reset state so charts will be created on-demand when panels expand.
+            if (graphsVisible && gpsData.length > 0) {
+                initCharts();
+            }
         });
 
         document.querySelectorAll('.panel-header').forEach(header => {
             header.addEventListener('click', (e) => {
-                // If clicking unit selector or fullscreen button, do not toggle expand
                 if (e.target.closest('.unit-selector')) return;
                 if (e.target.closest('.fullscreen-btn')) return;
 
-                header.closest('.data-panel').classList.toggle('expanded');
+                const panel = header.closest('.data-panel');
+                if (!panel) return;
+
+                const key = panel.dataset.panel; // "elevation", "speed", etc.
+                const willExpand = !panel.classList.contains('expanded');
+
+                panel.classList.toggle('expanded');
+
+                // If expanding, create the chart now (only once)
+                if (willExpand) {
+                    ensureChartForPanel(key);
+
+                    // Give layout a tick then resize chart (prevents 0-height issues)
+                    setTimeout(() => {
+                        const canvas = panel.querySelector('canvas');
+                        const chart = canvas ? Chart.getChart(canvas) : null;
+                        chart?.resize();
+                    }, 50);
+                }
             });
         });
+
 
         let fullscreenPanel = null;
 
         function enterFullscreenPanel(panel) {
             if (!panel) return;
 
-            // Ensure expanded so the chart is visible
+            const key = panel.dataset.panel; // e.g. "gforce"
+            ensureChartForPanel(key);
+
             panel.classList.add('expanded');
             panel.classList.add('fullscreen');
             fullscreenPanel = panel;
 
-            // Resize chart after layout changes
             setTimeout(() => {
                 const canvas = panel.querySelector('canvas');
                 if (!canvas) return;
-
-                // Find which chart this canvas corresponds to and resize it
-                // Chart.js keeps a global registry of instances (Chart.getChart in v3+)
                 const chart = Chart.getChart(canvas);
                 chart?.resize();
             }, 50);
@@ -2749,24 +2770,114 @@
         document.getElementById('elevationUnit')?.addEventListener('change', () => updateElevationChart());
         document.getElementById('speedUnit')?.addEventListener('change', () => updateSpeedChart());
 
+        // Track whether a given chart has been created yet (lazy-load)
+        const chartCreated = {
+            elevation: false,
+            speed: false,
+            acceleration: false,
+            gforce: false,
+            gyroscope: false,
+            heading: false
+        };
+
         function initCharts() {
+            // Lazy-load mode: don't build charts yet.
+            // Just destroy any existing charts (e.g., after reloading data / applying filters),
+            // and reset created flags.
             Object.values(charts).forEach(c => c?.destroy());
             charts = {};
+            Object.keys(chartCreated).forEach(k => chartCreated[k] = false);
+        }
 
-            createChart('elevationChart', 'elevation', { label: 'Elevation', data: gpsData.map(p => ({ x: p.time, y: p.alt })), color: '#10b981', yLabel: 'm' });
-            createChart('speedChart', 'speed', { label: 'Speed', data: gpsData.map(p => ({ x: p.time, y: p.speed })), color: '#f59e0b', yLabel: 'm/s' });
-            createMultiLineChart('accelChart', 'acceleration', [
-                { label: 'X', data: accData.map(p => ({ x: p.time, y: p.x })), color: '#ef4444' },
-                { label: 'Y', data: accData.map(p => ({ x: p.time, y: p.y })), color: '#22c55e' },
-                { label: 'Z', data: accData.map(p => ({ x: p.time, y: p.z })), color: '#3b82f6' }
-            ], 'm/s²');
-            createChart('gforceChart', 'gforce', { label: 'G-Force', data: accData.map(p => ({ x: p.time, y: Math.sqrt(p.x**2 + p.y**2 + p.z**2) / 9.81 })), color: '#ec4899', yLabel: 'G' });
-            createMultiLineChart('gyroChart', 'gyroscope', [
-                { label: 'X', data: gyroData.map(p => ({ x: p.time, y: p.x })), color: '#f97316' },
-                { label: 'Y', data: gyroData.map(p => ({ x: p.time, y: p.y })), color: '#a855f7' },
-                { label: 'Z', data: gyroData.map(p => ({ x: p.time, y: p.z })), color: '#06b6d4' }
-            ], 'rad/s');
-            createChart('headingChart', 'heading', { label: 'Course', data: gpsData.map(p => ({ x: p.time, y: p.course })), color: '#00d4ff', yLabel: '°' });
+        // Fast stride downsample helper (keeps UI responsive)
+        function downsampleSeries(points, maxPoints = 1200) {
+            if (!points || points.length <= maxPoints) return points;
+            const stride = Math.ceil(points.length / maxPoints);
+            const out = [];
+            for (let i = 0; i < points.length; i += stride) out.push(points[i]);
+            if (out[out.length - 1] !== points[points.length - 1]) out.push(points[points.length - 1]);
+            return out;
+        }
+
+        function ensureChartForPanel(panelKey) {
+            if (!panelKey) return;
+            if (chartCreated[panelKey]) return; // already built
+            if (gpsData.length === 0) return;
+
+            // Build ONLY the requested chart
+            if (panelKey === 'elevation') {
+                const elevationPoints = downsampleSeries(gpsData.map(p => ({ x: p.time, y: p.alt })), 1200);
+                createChart('elevationChart', 'elevation', {
+                    label: 'Elevation',
+                    data: elevationPoints,
+                    color: '#10b981',
+                    yLabel: 'm'
+                });
+                chartCreated.elevation = true;
+                return;
+            }
+
+            if (panelKey === 'speed') {
+                const speedPoints = downsampleSeries(gpsData.map(p => ({ x: p.time, y: p.speed })), 1200);
+                createChart('speedChart', 'speed', {
+                    label: 'Speed',
+                    data: speedPoints,
+                    color: '#f59e0b',
+                    yLabel: 'm/s'
+                });
+                chartCreated.speed = true;
+                return;
+            }
+
+            if (panelKey === 'acceleration') {
+                createMultiLineChart('accelChart', 'acceleration', [
+                    { label: 'X', data: downsampleSeries(accData.map(p => ({ x: p.time, y: p.x })), 1200), color: '#ef4444' },
+                    { label: 'Y', data: downsampleSeries(accData.map(p => ({ x: p.time, y: p.y })), 1200), color: '#22c55e' },
+                    { label: 'Z', data: downsampleSeries(accData.map(p => ({ x: p.time, y: p.z })), 1200), color: '#3b82f6' }
+                ], 'm/s²');
+                chartCreated.acceleration = true;
+                return;
+            }
+
+            if (panelKey === 'gforce') {
+                const gforceRaw = accData.map(p => ({
+                    x: p.time,
+                    y: Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z) / 9.81
+                }));
+                const gforcePoints = downsampleSeries(gforceRaw, 1200);
+
+                createChart('gforceChart', 'gforce', {
+                    label: 'G-Force',
+                    data: gforcePoints,
+                    color: '#ec4899',
+                    yLabel: 'G',
+                    heavy: true
+                });
+                chartCreated.gforce = true;
+                return;
+            }
+
+            if (panelKey === 'gyroscope') {
+                createMultiLineChart('gyroChart', 'gyroscope', [
+                    { label: 'X', data: downsampleSeries(gyroData.map(p => ({ x: p.time, y: p.x })), 1200), color: '#f97316' },
+                    { label: 'Y', data: downsampleSeries(gyroData.map(p => ({ x: p.time, y: p.y })), 1200), color: '#a855f7' },
+                    { label: 'Z', data: downsampleSeries(gyroData.map(p => ({ x: p.time, y: p.z })), 1200), color: '#06b6d4' }
+                ], 'rad/s');
+                chartCreated.gyroscope = true;
+                return;
+            }
+
+            if (panelKey === 'heading') {
+                const headingPoints = downsampleSeries(gpsData.map(p => ({ x: p.time, y: p.course })), 1200);
+                createChart('headingChart', 'heading', {
+                    label: 'Course',
+                    data: headingPoints,
+                    color: '#00d4ff',
+                    yLabel: '°'
+                });
+                chartCreated.heading = true;
+                return;
+            }
         }
 
         function createChart(canvasId, name, config) {
@@ -2810,19 +2921,29 @@
         }
 
         function updateElevationChart() {
+            ensureChartForPanel('elevation');
             if (!charts.elevation) return;
+
             const mult = document.getElementById('elevationUnit').value === 'ft' ? 3.281 : 1;
-            charts.elevation.data.datasets[0].data = gpsData.map(p => ({ x: p.time, y: p.alt * mult }));
+            const elevationPoints = downsampleSeries(gpsData.map(p => ({ x: p.time, y: p.alt * mult })), 1200);
+
+            charts.elevation.data.datasets[0].data = elevationPoints;
             charts.elevation.update('none');
         }
 
+
         function updateSpeedChart() {
+            ensureChartForPanel('speed');
             if (!charts.speed) return;
+
             const unit = document.getElementById('speedUnit').value;
             let mult = 1;
             if (unit === 'kmh') mult = 3.6;
             else if (unit === 'mph') mult = 2.237;
-            charts.speed.data.datasets[0].data = gpsData.map(p => ({ x: p.time, y: p.speed * mult }));
+
+            const speedPoints = downsampleSeries(gpsData.map(p => ({ x: p.time, y: p.speed * mult })), 1200);
+
+            charts.speed.data.datasets[0].data = speedPoints;
             charts.speed.update('none');
         }
 
